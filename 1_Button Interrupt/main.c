@@ -7,10 +7,11 @@
 typedef int bool;
 #define true 1
 #define false 0
+//bool i = 0;
 
 int main(void)
 {
-    bool i = 0;
+
 	WDTCTL = WDTPW | WDTHOLD;	// stop watchdog timer
     P1DIR |= LED;               //Set Port 1.0 as an output
     P1OUT &= ~LED;              //Set the initial value of port 1.0 as "0"
@@ -31,13 +32,9 @@ int main(void)
 __interrupt void Port_1(void)
 
 {
-    if(!PnB && !i){         //If the button is pushed and the boolean is false
-                        P1OUT ^= LED;   //Flip the value of the LED
-                        i = 1;          //Flip the Value of the Boolean
-            }
-            else if(PnB && i){          //If the button is pushed and the boolean is true
-                       i = 0;           //Set the Boolean to be true
-           }
 
+
+    P1OUT ^= BIT0;                            // P1.0 = toggle
+    P1IFG &= ~BIT3; // P1.3 IFG cleared
 
 }
