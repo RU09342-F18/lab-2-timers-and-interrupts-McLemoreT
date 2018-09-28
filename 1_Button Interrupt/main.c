@@ -1,3 +1,7 @@
+/*
+ * Credit to github user: andreic987456
+ * Code inspiration and examples were used to aid in the development of this program.
+ */
 #include <msp430.h> 
 
 #define Btn BIT3                 //Define "Btn" as bit 3.
