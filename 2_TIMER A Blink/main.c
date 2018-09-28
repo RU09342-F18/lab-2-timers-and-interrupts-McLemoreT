@@ -29,12 +29,17 @@ int main(void)
     P1REN |= BIT3;                            // Enable resistor on SW2 (P1.3)
     P1OUT |= BIT3;                             //Pull up resistor on P1.3
     P1IFG &= ~BIT3; // P1.3 Interrupt Flag cleared
+
+    TA0CCTL0 = CCIE; // Enable interrupt in compare mode
+    TA0CTL = TASSEL_2 + MC_1 + ID_2; // SMCLK/4, Up
+    TA0CCR0 = 250000 / 5; // 250000 / 10 = 25000, (10^6 [Hz] / 4) / (25000) = 10Hz
     __bis_SR_register(LPM4_bits + GIE);
 }
 
-#pragma vector=PORT1_VECTOR
-__interrupt void Port_1(void)
-
+//#pragma vector=PORT1_VECTOR
+//__interrupt void Port_1(void)
+#pragma vector=TIMER0_A0_VECTOR
+__interrupt void Timer_A0 (void)
 {
 
 
