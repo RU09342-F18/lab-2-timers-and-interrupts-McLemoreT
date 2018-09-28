@@ -1,45 +1,52 @@
-
+/*
+ * Credit to github user: andreic987456
+ * Code inspiration and examples were used to aid in the development of this program.
+ */
 #include <msp430.h>
 
-#define LED_0 BIT0
-#define LED_1 BIT6
-#define LED_OUT P1OUT
-#define LED_DIR P1DIR
+#define Btn BIT3                 //Define "Btn" as bit 3.
+#define LED BIT0                   //Define "LED0" as bit 0.
+#define PnB (P1IN & Btn)        //Define "INP" for checking if there is an input on pin 1.3.
 
-void initializeTimer(int capture);
-
-unsigned int timerCount = 0;
-void main(void)
+typedef int bool;
+#define true 1
+#define false 0
+//bool i = 0;
+void TimerSetup (int rate);
+int main(void)
 {
-    WDTCTL = WDTPW + WDTHOLD; // Stop watchdog timer
-    LED_DIR |= (LED_0 + LED_1); // Set P1.0 and P1.6 to output direction
-    LED_OUT &= ~(LED_0 + LED_1); // Set the LEDs off
 
-    initializeTimer(20); // Initialize timer at 10Hz or 0.1s
+    WDTCTL = WDTPW | WDTHOLD;   // stop watchdog timer
+    P1DIR |= LED;               //Set Port 1.0 as an output
+    P1OUT &= ~LED;              //Set the initial value of port 1.0 as "0"
+
+    P1DIR &= ~Btn;              //Set Port 1.3 as an input
+    P1REN |= Btn;               //Turn on the pull-up resistor for port 1.3
+    P1OUT |= Btn;               //Set the initial value of port 1.3 as "1"
+
+    P1IE |=  BIT3;                            // P1.3 interrupt enabled
+    P1IES |= BIT3;                            //falling edge
+    P1REN |= BIT3;                            // Enable resistor on SW2 (P1.3)
+    P1OUT |= BIT3;                             //Pull up resistor on P1.3
+    P1IFG &= ~BIT3; // P1.3 Interrupt Flag cleared
+
 
     __enable_interrupt();
-
-    __bis_SR_register(LPM0 + GIE); // LPM0 with interrupts enabled
+    __bis_SR_register(LPM4_bits + GIE);
 }
-
-void initializeTimer(int hertz) // Seconds = 1/Hertz, 10Hz = 0.1s
-{
-    CCTL0 = CCIE;
-    TACTL = TASSEL_2 + MC_1 + ID_3; // SMCLK/8, UPMODE
-    // CLK/HERTZ = CAPTURE
-    // CLK = 1MHZ/8 = 125kHz
-    int capture = (125000)/hertz;
-    TACCR0 = capture; // (1000000/8)/(12500) = 10 Hz = 0.1 seconds
+void TimerSetup(int rate){
+    TA0CCTL0 = CCIE; // Enable interrupt in compare mode
+    TA0CTL = TASSEL_2 + MC_1 + ID_2; // SMCLK/4, Up
+    TA0CCR0 = 250000 / 5; // 250000 / 10 = 25000, (10^6 [Hz] / 4) / (25000) = 10Hz
 }
-
-// Timer A0 interrupt service routine
+//#pragma vector=PORT1_VECTOR
+//__interrupt void Port_1(void)
 #pragma vector=TIMER0_A0_VECTOR
-__interrupt void Timer0_A0 (void)
+__interrupt void Timer_A0 (void)
 {
-    if(timerCount >= 100) // 0.1 seconds 100 times, called every 10s
-    {
-        P1OUT ^= (LED_0 + LED_1); // Switch on the LEDs
-        timerCount = 0; // Reset the counter variable
-    }
-    else timerCount++; // Increment the counter variable until 10s
+
+
+    P1OUT ^= BIT0;                            // P1.0 = toggle
+    //P1IFG &= ~BIT3; // P1.3 IFG cleared
+
 }
