@@ -4,7 +4,7 @@
  */
 #include <msp430.h>
 
-#define Btn BIT3                 //Define "Btn" as bit 3.
+
 #define LED BIT0                   //Define "LED0" as bit 0.
 #define PnB (P1IN & Btn)        //Define "INP" for checking if there is an input on pin 1.3.
 
