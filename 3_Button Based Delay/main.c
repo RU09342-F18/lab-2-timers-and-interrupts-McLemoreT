@@ -35,8 +35,6 @@ void TimerSetup(int rate){
     //TACTL = TASSEL_2 + MC_1 + ID_3; // SMCLK/8, UPMODE
     TA0CCR0 = 125000 / rate; // 250000 / 10 = 25000, (10^6 [Hz] / 4) / (25000) = 10Hz
 }
-//#pragma vector=PORT1_VECTOR
-//__interrupt void Port_1(void)
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void Timer_A0 (void)
 {
